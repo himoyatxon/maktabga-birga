@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="uz" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Maktabga Birga — Oila va Maktab Hamkorligi</title>
+  
+  <!-- Tailwind CSS CDN with custom config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+            },
+            pastel: {
+              pink: '#fff0f3',
+              card: '#fff7f8',
+              border: '#ffd6de',
+              accent: '#ff758f',
+              darkbg: '#181119',
+              darkcard: '#241a26',
+              darkborder: '#3c2940'
+            }
+          },
+          fontFamily: {
+            sans: ['Nunito', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Nunito for friendly educational UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Canvas Confetti for game rewards -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-pastel-pink dark:bg-pastel-darkbg text-gray-800 dark:text-gray-100 min-h-screen font-sans transition-colors duration-300 overflow-x-hidden antialiased selection:bg-brand-200">
+
+  <!-- ================= APP CONTAINER ================= -->
+  <div id="app" class="max-w-md mx-auto min-h-screen relative flex flex-col shadow-2xl bg-white dark:bg-pastel-darkbg border-x border-brand-100 dark:border-pastel-darkborder">
+
+    <!-- ================= TOP HEADER (Ota-ona Profili) ================= -->
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-pastel-darkcard/90 backdrop-blur-md px-4 py-3 border-b border-brand-100 dark:border-pastel-darkborder flex items-center justify-between transition-colors">
+      
+      <!-- Left: Telegram-Style Profile Toggle -->
+      <button id="openDrawerBtn" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-brand-300 rounded-2xl p-1 -ml-1 transition-all">
+        <div class="relative">
+          <img id="parentAvatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80" alt="Ota-ona profili" class="w-11 h-11 rounded-2xl object-cover ring-2 ring-brand-300 dark:ring-brand-500 shadow-sm group-hover:scale-105 transition-transform">
+          <span class="absolute -bottom-1 -right-1 bg-green-500 w-3.5 h-3.5 rounded-full ring-2 ring-white dark:ring-pastel-darkcard"></span>
+        </div>
+        <div class="text-left">
+          <div class="flex items-center gap-1.5">
+            <h2 id="parentNameDisplay" class="font-bold text-sm text-gray-800 dark:text-white leading-tight">Nilufar Rahimova</h2>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-brand-500 transition-colors"></i>
+          </div>
+          <!-- Active Child Pill -->
+          <div class="flex items-center gap-1 mt-0.5">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300">
+              <span id="activeChildShortName">Azizbek (2-A sinf)</span>
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Right Action Icons: Telegram Bot status, Stars balance & Dark Mode -->
+      <div class="flex items-center gap-2">
+        <!-- Points / Stars Badge -->
+        <button onclick="switchView('rating')" title="To'plangan ballar va reyting" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs font-black shadow-xs hover:scale-105 transition-transform">
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-500"></i>
+          <span id="topBarPoints">450</span>
+        </button>
+
+        <!-- Telegram Notification Bell -->
+        <button id="tgNotifyBtn" onclick="openTgModal()" title="Telegram xabarnomalar" class="p-2 rounded-xl text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:text-gray-300 dark:hover:bg-pastel-darkborder transition-colors relative">
+          <i data-lucide="send" class="w-5 h-5 text-sky-500"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full animate-ping"></span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full"></span>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button id="themeToggleBtn" title="Tungi rejim" class="p-2 rounded-xl text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:text-amber-300 dark:hover:bg-pastel-darkborder transition-colors">
+          <i data-lucide="moon" id="themeIcon" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ================= TELEGRAM-STYLE SLIDE-OUT DRAWER ================= -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-black/50 z-40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <aside id="sideDrawer" class="fixed top-0 bottom-0 left-0 w-[84%] max-w-[340px] z-50 bg-white dark:bg-pastel-darkcard shadow-2xl transform -translate-x-full transition-transform duration-300 ease-out flex flex-col border-r border-brand-100 dark:border-pastel-darkborder">
+      
+      <!-- Drawer Profile Banner (Telegram uslubida) -->
+      <div class="p-5 bg-gradient-to-br from-brand-500 via-rose-500 to-pink-600 text-white relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+        
+        <div class="flex items-start justify-between relative z-10 mb-3">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80" alt="Nilufar Rahimova" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-white/70 shadow-md">
+          <button id="closeDrawerBtn" class="p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="relative z-10">
+          <h3 class="font-extrabold text-base leading-tight">Nilufar Rahimova</h3>
+          <p class="text-xs text-rose-100 font-medium">+998 90 123 45 67 • Ota-ona</p>
+        </div>
+
+        <!-- Ko'p farzandli tizim: Bolalarni almashtirish (Child Switcher Dropdown) -->
+        <div class="mt-4 pt-3 border-t border-white/20">
+          <label class="text-[11px] uppercase tracking-wider text-rose-100 font-bold block mb-1.5 flex items-center justify-between">
+            <span>Farzandni tanlang:</span>
+            <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-md">2 ta bola</span>
+          </label>
+          <div class="flex flex-col gap-1.5" id="drawerChildList">
+            <!-- Dynamically populated via JS -->
+          </div>
+          
+          <button onclick="openAddChildModal()" class="mt-2 w-full py-1.5 px-2 rounded-xl text-xs font-bold bg-white/15 hover:bg-white/25 text-white flex items-center justify-center gap-1.5 transition-colors">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>+ Yangi farzand qo'shish</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Nav Items (Telegram menyusi kabi) -->
+      <nav class="flex-1 overflow-y-auto p-3 space-y-1 text-sm font-semibold text-gray-700 dark:text-gray-200">
+        <a href="javascript:void(0)" onclick="switchView('tasks'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-950/60 text-brand-600 flex items-center justify-center">
+            <i data-lucide="calendar-check" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">5 Kunlik Vazifalar</span>
+          <span class="text-xs font-bold text-brand-500 bg-brand-100 dark:bg-brand-950 px-2 py-0.5 rounded-full">Yangi</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('games'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center">
+            <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">O'yinli Topshiriqlar</span>
+          <span class="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 px-1.5 py-0.5 rounded font-bold">Arqon & Jumanji</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('rating'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-950/60 text-yellow-600 flex items-center justify-center">
+            <i data-lucide="trophy" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">Sinf Reytingi</span>
+          <span class="text-xs text-yellow-600 font-black">#2 o'rin</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('dictionary'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center">
+            <i data-lucide="languages" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">Lug'atimiz</span>
+          <span class="text-[10px] text-gray-500 dark:text-gray-400">EN / RU / FR</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('library'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-950/60 text-pink-600 flex items-center justify-center">
+            <i data-lucide="book-marked" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">Javonim (Mutolaa)</span>
+          <span class="text-xs text-rose-500 font-bold">5 kitob</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('archive'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center">
+            <i data-lucide="award" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">1–4 Sinf Yutuqlar Arxivi</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('psychology'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-950/60 text-teal-600 flex items-center justify-center">
+            <i data-lucide="heart-handshake" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">Psixolog & Pedagogika</span>
+        </a>
+
+        <a href="javascript:void(0)" onclick="switchView('teacherChat'); closeDrawer();" class="drawer-link flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-pastel-darkborder transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-950/60 text-sky-600 flex items-center justify-center">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+          </div>
+          <span class="flex-1">O'qituvchi bilan muloqot</span>
+        </a>
+      </nav>
+
+      <!-- Drawer Footer with Telegram Bot & Dark mode switcher -->
+      <div class="p-3 border-t border-brand-100 dark:border-pastel-darkborder bg-pastel-card dark:bg-pastel-darkcard/50">
+        <button onclick="openTgModal(); closeDrawer();" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 font-bold text-xs transition-colors mb-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Telegram Bot ulangan</span>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </button>
+
+        <div class="flex items-center justify-between px-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+          <span>Tungi rejim</span>
+          <button onclick="toggleTheme()" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 dark:bg-brand-500 transition-colors">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1 dark:translate-x-6"></span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT VIEWS ================= -->
+    <main class="flex-1 p-4 pb-20">
+
+      <!-- ================= 1. VIEW: 5 KUNLIK VAZIFALAR (TASKS) ================= -->
+      <section id="view-tasks" class="view-content active space-y-4">
+        
+        <!-- Welcome Card with Child Selector Header -->
+        <div class="bg-gradient-to-r from-brand-100/90 via-pink-100/80 to-rose-100/70 dark:from-brand-950/40 dark:via-pink-950/30 dark:to-rose-950/20 border border-brand-200 dark:border-pastel-darkborder rounded-3xl p-4 shadow-xs relative overflow-hidden">
+          <div class="flex items-center justify-between relative z-10">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span id="childGradeBadge" class="px-2 py-0.5 rounded-md text-[11px] font-black tracking-wide bg-brand-500 text-white uppercase">2-A Sinf</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 font-bold" id="currentWeekLabel">Hafta: 5 kunlik reja</span>
+              </div>
+              <h1 class="text-lg font-black text-gray-900 dark:text-white" id="childWelcomeText">Azizbek bilan bugungi vazifalar</h1>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5">Ota-ona va bola birgalikda bajaradigan topshiriqlar</p>
+            </div>
+            <div class="text-center bg-white/80 dark:bg-pastel-darkcard/80 p-2.5 rounded-2xl shadow-xs border border-brand-200/50 dark:border-pastel-darkborder">
+              <span class="block text-[11px] font-bold text-gray-400">Jami ball</span>
+              <span class="text-base font-black text-brand-600 dark:text-brand-400" id="currentPointsDisplay">450</span>
+            </div>
+          </div>
+
+          <!-- Quick Quick Action Banner for Gamified Mode -->
+          <div class="mt-3.5 pt-3 border-t border-brand-200/60 dark:border-pastel-darkborder/60 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="p-1.5 rounded-xl bg-amber-500 text-white">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </span>
+              <span class="text-xs font-extrabold text-amber-900 dark:text-amber-200">Vazifalarni o'yin tarzida ishlang!</span>
+            </div>
+            <button onclick="switchView('games')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black shadow-xs hover:scale-102 transition-all flex items-center gap-1">
+              <span>O'yinga o'tish</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5-Day Day Selector (Tabs) -->
+        <div class="flex gap-1.5 bg-brand-50 dark:bg-pastel-darkcard p-1.5 rounded-2xl border border-brand-100 dark:border-pastel-darkborder">
+          <button onclick="selectDay('dushanba')" class="day-tab active flex-1 py-2 text-center rounded-xl text-xs font-bold transition-all" data-day="dushanba">
+            <span class="block text-[10px] uppercase text-gray-400">1-kun</span>
+            <span>Dush</span>
+          </button>
+          <button onclick="selectDay('seshanba')" class="day-tab flex-1 py-2 text-center rounded-xl text-xs font-bold transition-all text-gray-600 dark:text-gray-300" data-day="seshanba">
+            <span class="block text-[10px] uppercase text-gray-400">2-kun</span>
+            <span>Sesh</span>
+          </button>
+          <button onclick="selectDay('chorshanba')" class="day-tab flex-1 py-2 text-center rounded-xl text-xs font-bold transition-all text-gray-600 dark:text-gray-300" data-day="chorshanba">
+            <span class="block text-[10px] uppercase text-gray-400">3-kun</span>
+            <span>Chor</span>
+          </button>
+          <button onclick="selectDay('payshanba')" class="day-tab flex-1 py-2 text-center rounded-xl text-xs font-bold transition-all text-gray-600 dark:text-gray-300" data-day="payshanba">
+            <span class="block text-[10px] uppercase text-gray-400">4-kun</span>
+            <span>Pay</span>
+          </button>
+          <button onclick="selectDay('juma')" class="day-tab flex-1 py-2 text-center rounded-xl text-xs font-bold transition-all text-gray-600 dark:text-gray-300" data-day="juma">
+            <span class="block text-[10px] uppercase text-gray-400">5-kun</span>
+            <span>Juma</span>
+          </button>
+        </div>
+
+        <!-- Active Day Tasks Container -->
+        <div id="tasksList" class="space-y-3">
+          <!-- Dynamic Task Cards populated by JavaScript -->
+        </div>
+
+        <!-- O'qituvchi izohi va baholash info -->
+        <div class="p-3.5 rounded-2xl bg-white dark:bg-pastel-darkcard border border-brand-100 dark:border-pastel-darkborder text-xs flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-brand-100 dark:bg-brand-950/60 text-brand-600">
+            <i data-lucide="info" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h4 id="teacherNoteHeading" class="font-bold text-gray-800 dark:text-white">O'qituvchi eslatmasi:</h4>
+            <p class="text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
+              "Har kuni vazifalarni ota-ona bilan birga bajargan o'quvchiga qo'shimcha rag'batlantiruvchi yulduzcha va sinf reytingida yuqori o'rin beriladi."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. VIEW: O'YINLI TOPSHIRIQLAR (GAMES) ================= -->
+      <section id="view-games" class="view-content hidden space-y-4">
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="gamepad-2" class="w-5 h-5 text-amber-500"></i>
+              <span>O'yinli Topshiriqlar</span>
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Bilimingizni sinang va arqonni o'z tomoningizga torting!</p>
+          </div>
+          <button onclick="switchView('tasks')" class="text-xs text-brand-600 dark:text-brand-400 font-bold hover:underline">
+            ← Vazifalarga
+          </button>
+        </div>
+
+        <!-- Game Selector Cards -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Game 1: Arqon tortish -->
+          <div onclick="initTugOfWarGame()" id="gameTab-tug" class="cursor-pointer p-4 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-950/30 dark:to-orange-950/20 border-2 border-amber-400 dark:border-amber-600 transition-all shadow-sm ring-2 ring-amber-300 dark:ring-amber-500/50">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-2 shadow-xs">
+              <i data-lucide="swords" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-black text-sm text-gray-900 dark:text-white">Arqon Tortish</h3>
+            <p class="text-[11px] text-gray-600 dark:text-gray-300 mt-1">To'g'ri javob bilan raqibni yeng!</p>
+            <span class="inline-block mt-2 text-[10px] font-black uppercase text-amber-700 dark:text-amber-300 bg-amber-200/70 dark:bg-amber-900/50 px-2 py-0.5 rounded-md">+50 Ball • 5 Bosqich</span>
+          </div>
+
+          <!-- Game 2: Jumanji Sarguzashti -->
+          <div onclick="initJumanjiGame()" id="gameTab-jumanji" class="cursor-pointer p-4 rounded-3xl bg-white dark:bg-pastel-darkcard border-2 border-emerald-200 dark:border-emerald-800/60 opacity-80 hover:opacity-100 transition-all shadow-sm">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
+              <i data-lucide="dices" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-black text-sm text-gray-900 dark:text-white">Jumanji Sirli Yo'li</h3>
+            <p class="text-[11px] text-gray-600 dark:text-gray-300 mt-1">Savollarga javob berib marraga yet!</p>
+            <span class="inline-block mt-2 text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-200/70 dark:bg-emerald-900/50 px-2 py-0.5 rounded-md">+70 Ball • 7 Katak</span>
+          </div>
+        </div>
+
+        <!-- Interactive Game Arena (Animatsion hayvoncha va to'liq interaktiv maydon) -->
+        <div id="gameArena" class="bg-white dark:bg-pastel-darkcard rounded-3xl p-4 border border-brand-100 dark:border-pastel-darkborder shadow-md">
+          <!-- Will render active game inside -->
+        </div>
+      </section>
+
+      <!-- ================= 3. VIEW: SINF REYTINGI (RATING) ================= -->
+      <section id="view-rating" class="view-content hidden space-y-4">
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="trophy" class="w-5 h-5 text-yellow-500"></i>
+              <span id="ratingClassTitle">1-A Sinf Reytingi</span>
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">O'quvchilar va ota-onalar to'plagan ballar</p>
+          </div>
+          <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300">
+            Haftalik reyting
+          </span>
+        </div>
+
+        <!-- Top 3 Podium (1, 2, 3-o'rinlar) -->
+        <div id="podiumContainer" class="bg-gradient-to-b from-brand-50 to-white dark:from-pastel-darkcard dark:to-pastel-darkbg p-4 rounded-3xl border border-brand-100 dark:border-pastel-darkborder pt-6 pb-4">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Reyting jadvali (Boshqa o'quvchilar ro'yxati) -->
+        <div class="bg-white dark:bg-pastel-darkcard rounded-3xl p-3 border border-brand-100 dark:border-pastel-darkborder shadow-xs space-y-2" id="fullRankingList">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ================= 4. VIEW: LUG'ATIMIZ (DICTIONARY - 3 TILLARDA) ================= -->
+      <section id="view-dictionary" class="view-content hidden space-y-4">
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="languages" class="w-5 h-5 text-indigo-500"></i>
+              <span>Lug'atimiz</span>
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Ota-ona va bola birgalikda so'z yodlaydi va test ishlaydi</p>
+          </div>
+          <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-1 rounded-xl">
+            Talaffuz ovozli 🔊
+          </span>
+        </div>
+
+        <!-- Mode Switcher: Flashcards VS Viktorina Test -->
+        <div class="flex gap-2 p-1 bg-brand-50 dark:bg-pastel-darkborder/50 rounded-2xl border border-brand-100 dark:border-pastel-darkborder">
+          <button onclick="setDictionaryMode('cards')" id="dictModeTab-cards" class="flex-1 py-2 rounded-xl text-xs font-black transition-all bg-indigo-600 text-white shadow-xs">
+            🎴 So'z kartalari (Flashcard)
+          </button>
+          <button onclick="setDictionaryMode('quiz')" id="dictModeTab-quiz" class="flex-1 py-2 rounded-xl text-xs font-black transition-all text-gray-600 dark:text-gray-300 hover:text-indigo-600">
+            🧠 Lug'at Viktorinasi (Test)
+          </button>
+        </div>
+
+        <!-- Tilni tanlash tugmalari: Ingliz, Rus, Fransuz -->
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setVocabLanguage('en')" id="langTab-en" class="lang-tab active py-2.5 px-2 rounded-2xl border-2 text-center transition-all bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500 text-indigo-700 dark:text-indigo-300 font-black text-xs shadow-xs">
+            <span class="block text-base">🇬🇧</span>
+            <span>English</span>
+          </button>
+          <button onclick="setVocabLanguage('ru')" id="langTab-ru" class="lang-tab py-2.5 px-2 rounded-2xl border-2 text-center transition-all bg-white dark:bg-pastel-darkcard border-gray-200 dark:border-pastel-darkborder text-gray-600 dark:text-gray-300 font-bold text-xs">
+            <span class="block text-base">🇷🇺</span>
+            <span>Русский</span>
+          </button>
+          <button onclick="setVocabLanguage('fr')" id="langTab-fr" class="lang-tab py-2.5 px-2 rounded-2xl border-2 text-center transition-all bg-white dark:bg-pastel-darkcard border-gray-200 dark:border-pastel-darkborder text-gray-600 dark:text-gray-300 font-bold text-xs">
+            <span class="block text-base">🇫🇷</span>
+            <span>Français</span>
+          </button>
+        </div>
+
+        <!-- Dictionary Content Area (Dynamic: Flashcards OR Quiz) -->
+        <div id="vocabContentArea" class="space-y-4">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ================= 5. VIEW: JAVONIM (MUTOLAA BURCHAGI) ================= -->
+      <section id="view-library" class="view-content hidden space-y-4">
+        
+        <div>
+          <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="book-marked" class="w-5 h-5 text-rose-500"></i>
+            <span>Javonim (Mutolaa)</span>
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Ota-onalar va bolalar uchun tarbiyaviy kitoblar to'plami</p>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="flex gap-2">
+          <button onclick="filterLibrary('all', this)" class="lib-tab active px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-500 text-white">Hammasi</button>
+          <button onclick="filterLibrary('parents', this)" class="lib-tab px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-pastel-darkcard text-gray-600 dark:text-gray-300 border border-brand-100 dark:border-pastel-darkborder">Ota-onalar uchun</button>
+          <button onclick="filterLibrary('children', this)" class="lib-tab px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-pastel-darkcard text-gray-600 dark:text-gray-300 border border-brand-100 dark:border-pastel-darkborder">Bolalar uchun</button>
+        </div>
+
+        <!-- Books Grid -->
+        <div id="booksGrid" class="grid grid-cols-2 gap-3">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- ================= 6. VIEW: 1-4 SINF YUTUQLAR ARXIVI ================= -->
+      <section id="view-archive" class="view-content hidden space-y-4">
+        
+        <div>
+          <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="award" class="w-5 h-5 text-emerald-500"></i>
+            <span>1–4 Sinf Yutuqlar Arxivi</span>
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Yillar davomidagi rivojlanish va sertifikatlar</p>
+        </div>
+
+        <!-- Class Grade Timeline (1-sinf, 2-sinf, 3-sinf, 4-sinf) -->
+        <div class="grid grid-cols-4 gap-2">
+          <div class="p-2.5 rounded-2xl bg-white dark:bg-pastel-darkcard border border-emerald-300 dark:border-emerald-800 text-center">
+            <span class="block text-xs font-black text-emerald-600">1-Sinf</span>
+            <span class="text-[10px] text-gray-400 font-semibold">Tugallangan</span>
+            <span class="block text-xs font-bold text-gray-700 dark:text-gray-300 mt-1">1,450 ⭐️</span>
+          </div>
+          <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500 text-center shadow-xs">
+            <span class="block text-xs font-black text-emerald-600">2-Sinf</span>
+            <span class="text-[10px] text-emerald-700 dark:text-emerald-300 font-black">Hozirgi</span>
+            <span class="block text-xs font-bold text-gray-700 dark:text-gray-300 mt-1" id="archiveGrade2Pts">450 ⭐️</span>
+          </div>
+          <div class="p-2.5 rounded-2xl bg-gray-50 dark:bg-pastel-darkcard/50 border border-dashed border-gray-300 dark:border-gray-700 text-center opacity-60">
+            <span class="block text-xs font-black text-gray-400">3-Sinf</span>
+            <span class="text-[10px] text-gray-400 font-medium">Rejada</span>
+            <span class="block text-xs font-bold text-gray-400 mt-1">—</span>
+          </div>
+          <div class="p-2.5 rounded-2xl bg-gray-50 dark:bg-pastel-darkcard/50 border border-dashed border-gray-300 dark:border-gray-700 text-center opacity-60">
+            <span class="block text-xs font-black text-gray-400">4-Sinf</span>
+            <span class="text-[10px] text-gray-400 font-medium">Rejada</span>
+            <span class="block text-xs font-bold text-gray-400 mt-1">—</span>
+          </div>
+        </div>
+
+        <!-- Certificates & Badges earned -->
+        <div class="bg-white dark:bg-pastel-darkcard rounded-3xl p-4 border border-brand-100 dark:border-pastel-darkborder shadow-xs space-y-3">
+          <h3 class="font-bold text-sm text-gray-800 dark:text-white flex items-center justify-between">
+            <span>Bolaning Sertifikatlari</span>
+            <span class="text-xs text-brand-600 dark:text-brand-400 font-black">3 ta sertifikat</span>
+          </h3>
+
+          <div class="space-y-2.5">
+            <!-- Cert 1 -->
+            <div class="p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex items-center gap-3">
+              <div class="text-2xl">📜</div>
+              <div class="flex-1">
+                <h4 class="font-bold text-xs text-gray-900 dark:text-white">1-Sinfni A'lo Baholar bilan yakunlaganlik</h4>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400">Berildi: Azizbek Rahimova • 2025-yil May</p>
+              </div>
+              <button onclick="showCertModal('1-Sinf A\'lochi')" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline">Ko'rish</button>
+            </div>
+
+            <!-- Cert 2 -->
+            <div class="p-3 rounded-2xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 flex items-center gap-3">
+              <div class="text-2xl">🥇</div>
+              <div class="flex-1">
+                <h4 class="font-bold text-xs text-gray-900 dark:text-white">Alifbo bilimdoni va Tez o'qish chempioni</h4>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400">Ota-ona bilan hamkorlik sertifikati</p>
+              </div>
+              <button onclick="showCertModal('Alifbo Bilimdoni')" class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline">Ko'rish</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. VIEW: PSIXOLOG & PEDAGOGIKA ================= -->
+      <section id="view-psychology" class="view-content hidden space-y-4">
+        <div>
+          <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="heart-handshake" class="w-5 h-5 text-teal-500"></i>
+            <span>Psixolog & Pedagogika</span>
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Onalar va 1–4 sinf bolalari uchun professional maslahatlar</p>
+        </div>
+
+        <!-- Ayol psixolog maslahati -->
+        <div class="p-4 rounded-3xl bg-gradient-to-br from-teal-50 to-emerald-100 dark:from-teal-950/30 dark:to-emerald-950/20 border border-teal-200 dark:border-teal-800 shadow-xs">
+          <div class="flex items-center gap-3 mb-2">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80" alt="Psixolog" class="w-11 h-11 rounded-2xl object-cover ring-2 ring-teal-400">
+            <div>
+              <h3 class="font-black text-sm text-gray-900 dark:text-white">Nodira Saidova</h3>
+              <p class="text-[11px] text-teal-700 dark:text-teal-300 font-bold">Oila va bolalar psixologi</p>
+            </div>
+          </div>
+          <p class="text-xs text-gray-700 dark:text-gray-200 leading-relaxed">
+            "7-8 yoshli bola vazifalarni bajarishda tez charchashi tabiiy. Uni majburlash emas, har bir to'g'ri qadami uchun birga quvonish va o'yin shakliga keltirish eng yuqori samarani beradi."
+          </p>
+          <button onclick="alert('Psixolog bilan individual audio/savol qabul qilindi!')" class="mt-3 w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5">
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+            <span>Psixologga savol yo'llash</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 8. VIEW: O'QITUVCHI BILAN MULOQOT ================= -->
+      <section id="view-teacherChat" class="view-content hidden space-y-4">
+        <div>
+          <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="message-circle" class="w-5 h-5 text-sky-500"></i>
+            <span>O'qituvchi bilan muloqot</span>
+          </h2>
+          <p id="teacherChatSubtitle" class="text-xs text-gray-500 dark:text-gray-400">2-A sinf rahbari: Ziyoda Rahimova</p>
+        </div>
+
+        <div class="bg-white dark:bg-pastel-darkcard rounded-3xl p-4 border border-brand-100 dark:border-pastel-darkborder shadow-xs flex flex-col h-[340px]">
+          <!-- Chat Messages Area -->
+          <div id="chatMessages" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+            <div class="flex items-start gap-2">
+              <img src="https://images.unsplash.com/photo-1580894732488-cbfe69a19491?w=100&auto=format&fit=crop&q=80" class="w-7 h-7 rounded-full object-cover">
+              <div class="bg-gray-100 dark:bg-pastel-darkborder p-2.5 rounded-2xl rounded-tl-none max-w-[80%] text-gray-800 dark:text-gray-200">
+                <span class="block font-black text-[10px] text-brand-600">Ziyoda opa</span>
+                Assalomu alaykum, Nilufar opa! Azizbek bugungi Alifbo o'yin vazifasini a'lo bajardi. Uyda matematika misolini ham birga qarab yuboringlar.
+              </div>
+            </div>
+
+            <div class="flex items-start justify-end gap-2">
+              <div class="bg-brand-500 text-white p-2.5 rounded-2xl rounded-tr-none max-w-[80%]">
+                Rahmat, ustoz! Albatta, hozir matematika o'yinini ishlab bo'ldik, ballarini yubordik!
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <form onsubmit="sendChatMessage(event)" class="mt-3 pt-2 border-t border-brand-100 dark:border-pastel-darkborder flex items-center gap-2">
+            <input type="text" id="chatInput" placeholder="Ustozga xabar yozing..." class="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-pastel-darkborder border border-gray-200 dark:border-transparent text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-400">
+            <button type="submit" class="p-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white transition-colors">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= FLOATING TELEGRAM-LIKE QUICK MENU BUTTON ================= -->
+    <div class="fixed bottom-4 right-4 z-20 sm:hidden">
+      <button onclick="openDrawer()" class="w-13 h-13 rounded-full bg-brand-500 hover:bg-brand-600 text-white shadow-xl flex items-center justify-center p-3 hover:scale-105 active:scale-95 transition-all">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+  </div> <!-- /app container -->
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Telegram Bot Integratsiyasi Modali -->
+  <div id="tgModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-pastel-darkcard rounded-3xl p-5 max-w-sm w-full border border-sky-200 dark:border-sky-900 shadow-2xl relative">
+      <button onclick="closeTgModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="w-12 h-12 rounded-2xl bg-sky-500 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+        <i data-lucide="send" class="w-6 h-6"></i>
+      </div>
+
+      <h3 class="text-base font-black text-center text-gray-900 dark:text-white">Telegram Bot Xabarnomalari</h3>
+      <p class="text-xs text-center text-gray-500 dark:text-gray-300 mt-1 mb-4 leading-relaxed">
+        Maktabdagi darslar, 5 kunlik vazifalar va to'plangan ballar ota-onaga Telegram boti orqali tezkor yuboriladi.
+      </p>
+
+      <div class="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-800 text-xs text-sky-800 dark:text-sky-300 mb-4 space-y-1">
+        <div class="flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+          <span class="font-bold">Bot statusi: Ulangan</span>
+        </div>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400">Telegram: @MaktabgaBirga_bot</p>
+      </div>
+
+      <button onclick="simulateTelegramPush()" class="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="bell-ring" class="w-4 h-4"></i>
+        <span>Sinov xabari yuborish (Demo Push)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Farzand qo'shish Modali (Ko'p farzandli ota-onalar) -->
+  <div id="addChildModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-pastel-darkcard rounded-3xl p-5 max-w-sm w-full border border-brand-200 dark:border-pastel-darkborder shadow-2xl relative">
+      <button onclick="closeAddChildModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="w-12 h-12 rounded-2xl bg-brand-500 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+        <i data-lucide="user-plus" class="w-6 h-6"></i>
+      </div>
+
+      <h3 class="text-base font-black text-center text-gray-900 dark:text-white">Yangi farzand profilini qo'shish</h3>
+      <p class="text-xs text-center text-gray-500 dark:text-gray-300 mt-1 mb-4">
+        Oila hisobingizga yana bir farzandingizni ulang va uning 1–4 sinfdagi natijalarini kuzatib boring.
+      </p>
+
+      <form onsubmit="saveNewChild(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Farzandning ismi:</label>
+          <input type="text" id="newChildName" required placeholder="Masalan: Jasurbek" class="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-pastel-darkborder border border-gray-200 dark:border-transparent text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-400">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Sinfi:</label>
+          <select id="newChildGrade" class="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-pastel-darkborder border border-gray-200 dark:border-transparent text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-400">
+            <option value="1-sinf">1-sinf</option>
+            <option value="2-sinf">2-sinf</option>
+            <option value="3-sinf">3-sinf</option>
+            <option value="4-sinf">4-sinf</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md transition-colors mt-2">
+          Profilni Saqlash
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Vazifa Bajarish / Video & Audio & Savol Modali -->
+  <div id="taskModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-pastel-darkcard rounded-3xl p-5 max-w-md w-full border border-brand-200 dark:border-pastel-darkborder shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeTaskModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div id="taskModalContent">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Sertifikat Ko'rish Modali -->
+  <div id="certModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-gradient-to-br from-amber-50 via-white to-rose-50 dark:from-pastel-darkcard dark:to-pastel-darkbg rounded-3xl p-6 max-w-sm w-full border-4 border-amber-300 dark:border-amber-600 shadow-2xl relative text-center">
+      <button onclick="closeCertModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-4xl mb-2">🏆</div>
+      <h3 class="text-xs font-black uppercase tracking-widest text-amber-600">FAXRIY YORLIQ</h3>
+      <h2 id="certTitle" class="text-lg font-black text-gray-900 dark:text-white mt-1">1-Sinf A'lochi</h2>
+      
+      <p class="text-xs text-gray-600 dark:text-gray-300 my-4 leading-relaxed">
+        Ushbu sertifikat <b id="certStudentName">Azizbek Rahimova</b> va uning ota-onasiga maktabdagi faol hamkorligi, vazifalarni a'lo darajada o'z vaqtida bajarganligi uchun beriladi.
+      </p>
+
+      <div class="pt-3 border-t border-amber-200 dark:border-amber-800 flex items-center justify-between text-[11px] text-gray-500 font-bold">
+        <span>«Maktabga birga» loyihasi</span>
+        <span>2025–2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
